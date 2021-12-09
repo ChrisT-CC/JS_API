@@ -6,10 +6,47 @@ document.getElementById("status").addEventListener("click", e => getStatus(e));
 document.getElementById("submit").addEventListener("click", e => postForm(e));
 
 /**
+ * Converts API's options to the right format (comma separated list)
+ * @param {checksform} form 
+ * @returns form
+ */
+function processOptions(form) {
+
+    let optArray = [];
+
+    // Iterating through form's options
+    for (let entry of form.entries()) {
+        
+        // Pushing each value into a temporary array
+        if (entry[0] === "options") {
+            optArray.push(entry[1]);
+        }
+    }
+
+    // Deleting all the existing options
+    form.delete("options");
+
+    /**
+     * Append our new options
+     * Append the key called options and the value here will be our opt array
+     * We'll use the join method to convert it back to a string which by default is separated by commas
+     */
+    form.append("options", optArray.join());
+
+    return form;
+
+}
+
+/**
  * Post a request to the API
  */
 async function postForm(e) {
-    const form = new FormData(document.getElementById("checksform"));
+    const form = processOptions(new FormData(document.getElementById("checksform")));
+
+    // // test code
+    // for (let entry of form.entries()) {
+    //     console.log(entry);
+    // }
 
     const response = await fetch(API_URL, {
         method: "POST",
@@ -29,6 +66,9 @@ async function postForm(e) {
     }
 }
 
+/**
+ * Display POST request results in a modal
+ */
 function displayErrors(data) {
 
     let heading = `JSHint Results for ${data.file}`;
